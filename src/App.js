@@ -1,25 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import Home from "./components/Home";
+//static list of 10 cities
+const suggestionsList=[
+  {id:1,suggestion:"Hyderabad"},
+  {id:2,suggestion:"Mumbai"},
+  {id:3,suggestion:"Pune"},
+  {id:4,suggestion:"Kolkata"},
+  {id:5,suggestion:"Chennai"},
+  {id:6,suggestion:"Bengaluru"},
+  {id:7,suggestion:"Jaipur"},
+  {id:8,suggestion:"Bhopal"},
+  {id:9,suggestion:"Nagpur"},
+  {id:10,suggestion:"Jaipur"},
+  
+]
+const App=()=>{
+  return <Home suggestionsList={suggestionsList}/>
 }
 
-export default App;
+export default App
