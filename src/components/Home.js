@@ -1,4 +1,4 @@
-import { Component } from "react"
+import { useState,useEffect } from "react";
 
 import SuggestionItem from "./SuggestionItem";
 
@@ -8,19 +8,31 @@ import { Circles } from "react-loader-spinner";
 
 
 
-class Home extends Component {
+const Home=(props)=> {
 
-    state = { searchInput: '', progress: "", weatherData: {} }
+    const [searchInput,setsearchInput]=useState('');
+    const [weatherData,setweatherData]=useState({});
+    const [progress,setprogress]=useState('');
+    const [suggestionClicked,setsuggestionClicked]=useState(false)
+
 
     //updating the state whenever the user clicks on a particular suggestion and calling the function which makes https request
-    updateSearch = value => {
-        this.setState({ searchInput: value }, this.onGetWeatherDetails)
+    const updateSearch = value => {
+        setsearchInput(value)
+        
+        setsuggestionClicked(true)
     }
 
+    useEffect(()=>{
+        if (suggestionClicked){
+            onGetWeatherDetails()
+        }
+    },[suggestionClicked])
+
     //function which makes the http request and response will be stored in th state(weatherData)
-    onGetWeatherDetails = async () => {
-        this.setState({ progress: "InProgress" })
-        const { searchInput } = this.state
+    const onGetWeatherDetails = async () => {
+        setprogress("InProgress")
+        
         const apiurl1 = `https://api.openweathermap.org/geo/1.0/direct?q=${searchInput}&limit=5&appid=9833f9a5720200f955c214372952e372`
         const options = { method: "GET" }
         const response1 = await fetch(apiurl1, options);
@@ -34,36 +46,39 @@ class Home extends Component {
                 const data2 = await response2.json()
                 console.log(data2)
                 const weatherdata = { temp: data2.main.temp, humidity: data2.main.humidity, pressure: data2.main.pressure, city: data2.name }
-                this.setState({ weatherData: weatherdata, searchInput: "", progress: "Success" })
+               setweatherData(weatherdata)
+               setsearchInput('')
+               setprogress('Success')
+               setsuggestionClicked(false)
             }
             else {
-                this.setState({ progress: "Failure" })
+                setprogress("Failure")
 
             }
         }
         else {
-            this.setState({ progress: "Failure" })
+            setprogress("Failure")
         }
     }
 
-    onChangeSearchInput = event => {
-        this.setState({ searchInput: event.target.value })
+    const onChangeSearchInput = event => {
+        setsearchInput(event.target.value)
     }
 
     
-    retry = () => {
-        this.onGetWeatherDetails()
+    const retry = () => {
+        onGetWeatherDetails()
     }
     //for handling errors
-    onFailureView = () => {
+    const onFailureView = () => {
         return <div>
             <h1>Oops! Something went Wrong</h1>
-            <button onClick={this.retry}>Retry</button>
+            <button onClick={retry}>Retry</button>
         </div>
     }
 
     //will be called in the time loading
-    onLoadingView = () => {
+    const onLoadingView = () => {
         return <div>
             <Circles
                 height="80"
@@ -78,8 +93,8 @@ class Home extends Component {
     }
 
     //Success view
-    onSuccessView=()=>{
-        const {weatherData}=this.state
+    const onSuccessView=()=>{
+        
         const temp=parseInt(weatherData.temp)-273;
         const {humidity,pressure,city}=weatherData;
         return(
@@ -103,15 +118,15 @@ class Home extends Component {
     }
 
     //function for rendering the result
-    onRenderDetails=()=>{
-        const {progress}=this.state
+    const onRenderDetails=()=>{
+        
         switch (progress){
             case "Failure":
-                return this.onFailureView()
+                return onFailureView()
             case "InProgress":
-                return this.onLoadingView()
+                return onLoadingView()
             case "Success":
-                 return this.onSuccessView()
+                 return onSuccessView()
             default:
                 return <div className="p-10 m-10 text-white flex place-items-center flex-col rounded-lg border-2">
                     <h1 className="text-2xl font-sans text-white font-bold">Popular Searches:</h1>
@@ -123,9 +138,9 @@ class Home extends Component {
     }
 
 
-    render() {
-        const { suggestionsList } = this.props;
-        const { searchInput } = this.state;
+    
+        const { suggestionsList } = props;
+        
 
         //for suggestions based on the search Input
         let searchResults = suggestionsList.filter(each =>
@@ -145,21 +160,21 @@ class Home extends Component {
                 <div className="flex flex-col bg-white p-2 m-5 border-2 place-items-center md:w-96 sm:w-32">
                     <div className="flex place-items-center justify-start w-full">
                         <CiSearch />
-                        <input type="search" placeholder="Search" onChange={this.onChangeSearchInput} value={searchInput} className="outline-0 w-full" />
+                        <input type="search" placeholder="Search" onChange={onChangeSearchInput} value={searchInput} className="outline-0 w-full" />
                     </div>
                     <ul className="bg-white w-full">
                         {searchResults.map(each => (
-                            <SuggestionItem suggestionDetails={each} key={each.id} updateSearch={this.updateSearch} />
+                            <SuggestionItem suggestionDetails={each} key={each.id} updateSearch={updateSearch} />
                         ))}
                     </ul>
                 </div>
                 <div>
-                    {this.onRenderDetails()}
+                    {onRenderDetails()}
                 </div>
 
             </div>
         )
     }
-}
+
 
 export default Home
